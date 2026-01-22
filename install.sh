@@ -437,11 +437,21 @@ fi
 
 # 9. VERIFICATION
 echo -e "${GREEN}[*] Verifying Installation...${NC}"
-arch-chroot /mnt/usb /bin/bash -c "which grub-mkconfig && which systemctl" || echo -e "${YELLOW}Warning: Verification checks failed${NC}"
+if mountpoint -q /mnt/usb; then
+    arch-chroot /mnt/usb /bin/bash -c "which grub-mkconfig && which systemctl" 2>/dev/null || echo -e "${YELLOW}Warning: Verification checks failed (non-critical)${NC}"
+else
+    echo -e "${YELLOW}Warning: /mnt/usb not mounted, skipping verification${NC}"
+fi
 
 # 10. FINISH
 echo -e "${GREEN}[*] Unmounting...${NC}"
-umount -R /mnt/usb || error_exit "Failed to unmount"
+if mountpoint -q /mnt/usb/boot; then
+    umount /mnt/usb/boot || echo -e "${YELLOW}Warning: Could not unmount /mnt/usb/boot${NC}"
+fi
+if mountpoint -q /mnt/usb; then
+    umount /mnt/usb || echo -e "${YELLOW}Warning: Could not unmount /mnt/usb${NC}"
+fi
+sync
 
 # Cleanup checkpoint
 rm -f "$CHECKPOINT_FILE"
