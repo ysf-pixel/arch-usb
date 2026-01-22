@@ -35,7 +35,7 @@ if [[ $EUID -ne 0 ]]; then
    exit 1
 fi
 
-# Enable Parallel Downloads (Fix for Image 1: Speed)
+# Fix for Image 1: Speed/Mirror optimization
 sed -i 's/^#ParallelDownloads/ParallelDownloads/' /etc/pacman.conf
 print_success "Super-speed downloads enabled."
 
@@ -57,7 +57,7 @@ if [ ! -b "$TARGET" ]; then print_error "Invalid device!"; exit 1; fi
 
 print_line
 echo -e "${DANGER}  WIPING ALL DATA ON: $TARGET${NC}"
-read -p "  Are you absolutely sure? (Type YES): " CONFIRM
+read -p "  Are you absolutely sure? (Type YES to confirm): " CONFIRM
 if [ "$CONFIRM" != "YES" ]; then print_error "Aborted."; exit 1; fi
 
 # 4. PREPARATION (Partition/Format)
@@ -78,10 +78,11 @@ mkdir -p /mnt/boot
 mount "$P2" /mnt/boot
 print_success "Drive ready and mounted."
 
-# 5. PACSTRAP (Fix for Image 2: Automation)
+# 5. PACSTRAP (Fix for Image 2: Automation Freeze)
 print_line
 print_step "Installing Arch Linux (Please wait...)"
-# Added base-devel, git, fastfetch, and firmware fixes
+# Added --noconfirm to prevent freeze on iptables choice
+# Added sof-firmware to resolve missing firmware warnings
 pacstrap -K /mnt --noconfirm base base-devel linux linux-firmware sof-firmware git nano networkmanager grub efibootmgr sudo bash-completion fastfetch 
 print_success "Base system installed successfully."
 
@@ -93,8 +94,10 @@ genfstab -U /mnt >> /mnt/etc/fstab
 cat <<EOF > /mnt/setup.sh
 #!/bin/bash
 set -e
-# Fix for Image 3: vconsole/mkinitcpio error
+
+# FIX for Image 3: Create vconsole.conf BEFORE mkinitcpio runs
 echo "KEYMAP=us" > /etc/vconsole.conf
+
 ln -sf /usr/share/zoneinfo/UTC /etc/localtime
 hwclock --systohc
 echo "en_US.UTF-8 UTF-8" >> /etc/locale.gen
@@ -114,7 +117,7 @@ grub-install --target=i386-pc --recheck "$TARGET" > /dev/null 2>&1
 grub-install --target=x86_64-efi --efi-directory /boot --removable --recheck > /dev/null 2>&1
 grub-mkconfig -o /boot/grub/grub.cfg > /dev/null 2>&1
 
-# Portable Kernel build
+# Portable Kernel build - Autodetect removed for universal booting
 sed -i 's/autodetect //g' /etc/mkinitcpio.conf
 mkinitcpio -P > /dev/null
 EOF
