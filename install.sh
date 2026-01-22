@@ -16,31 +16,43 @@ print_step() { echo -e "${INFO}➜ ${BOLD}$1${NC}"; }
 print_success() { echo -e "${SUCCESS}✔ $1${NC}"; }
 print_error() { echo -e "${DANGER}✖ $1${NC}"; }
 
-# --- BANNER ---
-clear
-echo -e "${PRIMARY}"
-cat << "EOF"
-  ▄▄▄▄▄▄▄ ▄▄▄▄▄▄   ▄▄▄▄▄▄▄ ▄▄   ▄▄    ▄▄   ▄▄ ▄▄▄▄▄▄▄ ▄▄▄▄▄▄▄    ▄▄▄ ▄▄    ▄ ▄▄▄▄▄▄▄ ▄▄▄▄▄▄▄ ▄▄▄▄▄▄▄ ▄▄▄     ▄▄▄     ▄▄▄▄▄▄▄ ▄▄▄▄▄▄   
-█       █   ▄  █ █       █  █ █  █  █  █ █  █       █  ▄    █  █   █  █  █ █       █       █       █   █   █   █   █       █   ▄  █  
-█   ▄   █  █ █ █ █       █  █▄█  █  █  █ █  █  ▄▄▄▄▄█ █▄█   █  █   █   █▄█ █  ▄▄▄▄▄█▄     ▄█   ▄   █   █   █   █   █    ▄▄▄█  █ █ █  
-█  █▄█  █   █▄▄█▄█     ▄▄█       █  █  █▄█  █ █▄▄▄▄▄█       █  █   █       █ █▄▄▄▄▄  █   █ █  █▄█  █   █   █   █   █   █▄▄▄█   █▄▄█▄ 
-█       █    ▄▄  █    █  █   ▄   █  █       █▄▄▄▄▄  █  ▄   █   █   █  ▄    █▄▄▄▄▄  █ █   █ █       █   █▄▄▄█   █▄▄▄█    ▄▄▄█    ▄▄  █
-█   ▄   █   █  █ █    █▄▄█  █ █  █  █       █▄▄▄▄▄█ █ █▄█   █  █   █ █ █   █▄▄▄▄▄█ █ █   █ █   ▄   █       █       █   █▄▄▄█   █  █ █
-█▄▄█ █▄▄█▄▄▄█  █▄█▄▄▄▄▄▄▄█▄▄█ █▄▄█  █▄▄▄▄▄▄▄█▄▄▄▄▄▄▄█▄▄▄▄▄▄▄█  █▄▄▄█▄█  █▄▄█▄▄▄▄▄▄▄█ █▄▄▄█ █▄▄█ █▄▄█▄▄▄▄▄▄▄█▄▄▄▄▄▄▄█▄▄▄▄▄▄▄█▄▄▄█  █▄█
-
-        -- P O R T A B L E   U S B   E D I T I O N --
-EOF
-echo -e "          ${BOLD}Created by: Y.S.F${NC}"
-print_line
+# --- DYNAMIC BANNER FUNCTION ---
+print_banner() {
+    local term_width=$(tput cols 2>/dev/null || echo 80)
+    local banner=(
+        "▄▄▄▄▄▄▄ ▄▄▄▄▄▄  ▄▄▄▄▄▄▄ ▄▄   ▄▄    ▄▄    ▄▄ ▄▄▄▄▄▄▄ ▄▄▄▄▄▄▄     ▄▄▄ ▄▄     ▄ ▄▄▄▄▄▄▄ ▄▄▄▄▄▄▄ ▄▄▄▄▄▄▄ ▄▄▄      ▄▄▄      ▄▄▄▄▄▄▄ ▄▄▄▄▄▄ "
+        "█       █  ▄  █ █       █  █ █  █  █  █ █       █  ▄    █  █   █  █  █ █       █       █       █   █   █   █       █  ▄  █ "
+        "█   ▄   █  █ █ █ █       █  █▄█  █  █  █ █  ▄▄▄▄▄█ █▄█   █  █   █   █▄█ █  ▄▄▄▄▄█▄     ▄█   ▄   █   █   █   █    ▄▄▄█  █ █ █ "
+        "█  █▄█  █   █▄▄█▄█      ▄▄█       █  █  █▄█  █ █▄▄▄▄▄█       █  █   █       █ █▄▄▄▄▄  █   █ █  █▄█  █   █   █   █   █   █▄▄▄█   █▄▄█▄ "
+        "█       █    ▄▄  █    █  █   ▄   █  █       █▄▄▄▄▄  █  ▄   █   █   █  ▄    █▄▄▄▄▄  █ █   █ █       █   █▄▄▄█   █▄▄▄█    ▄▄▄█    ▄▄  █"
+        "█   ▄   █   █  █ █    █▄▄█  █ █  █  █       █▄▄▄▄▄█ █ █▄█   █  █   █ █ █   █▄▄▄▄▄█ █ █   █ █   ▄   █       █       █   █▄▄▄█   █  █ █"
+        "█▄▄█ █▄▄█▄▄▄█  █▄█▄▄▄▄▄▄▄█▄▄█ █▄▄█  █▄▄▄▄▄▄▄█▄▄▄▄▄▄▄█▄▄▄▄▄▄▄█  █▄▄▄█▄█  █▄▄█▄▄▄▄▄▄▄█ █▄▄▄█ █▄▄█ █▄▄█▄▄▄▄▄▄▄█▄▄▄▄▄▄▄█▄▄▄▄▄▄▄█▄▄▄█  █▄█"
+    )
+    echo -e "${PRIMARY}"
+    for line in "${banner[@]}"; do
+        local line_len=${#line}
+        if [ $term_width -gt $line_len ]; then
+            local padding=$(( (term_width - line_len) / 2 ))
+            printf "%${padding}s%s\n" "" "$line"
+        else
+            echo "$line"
+        fi
+    done
+    echo -e "${NC}"
+}
 
 # 1. INITIALIZATION & NETWORK
+clear
+print_banner
+echo -e "          ${BOLD}Portable Arch USB Edition | Created by: Y.S.F${NC}"
+print_line
+
 print_step "Checking environment..."
 if [[ $EUID -ne 0 ]]; then
    print_error "You must be root! Run with: sudo ./script.sh" 
    exit 1
 fi
 
-# Fix for Image 1: Speed/Mirror optimization
 sed -i 's/^#ParallelDownloads/ParallelDownloads/' /etc/pacman.conf
 print_success "Super-speed downloads enabled."
 
@@ -83,11 +95,9 @@ mkdir -p /mnt/boot
 mount "$P2" /mnt/boot
 print_success "Drive ready and mounted."
 
-# 5. PACSTRAP (Fix for Image 2: Automation Freeze)
+# 5. PACSTRAP
 print_line
 print_step "Installing Arch Linux (Please wait...)"
-# Added --noconfirm to prevent freeze on iptables choice
-# Added sof-firmware to resolve missing firmware warnings
 pacstrap -K /mnt --noconfirm base base-devel linux linux-firmware sof-firmware git nano networkmanager grub efibootmgr sudo bash-completion fastfetch 
 print_success "Base system installed successfully."
 
@@ -100,7 +110,7 @@ cat <<EOF > /mnt/setup.sh
 #!/bin/bash
 set -e
 
-# FIX for Image 3: Create vconsole.conf BEFORE mkinitcpio runs
+# FIX: Create vconsole.conf BEFORE mkinitcpio runs
 echo "KEYMAP=us" > /etc/vconsole.conf
 
 ln -sf /usr/share/zoneinfo/UTC /etc/localtime
@@ -122,7 +132,7 @@ grub-install --target=i386-pc --recheck "$TARGET" > /dev/null 2>&1
 grub-install --target=x86_64-efi --efi-directory /boot --removable --recheck > /dev/null 2>&1
 grub-mkconfig -o /boot/grub/grub.cfg > /dev/null 2>&1
 
-# Portable Kernel build - Autodetect removed for universal booting
+# Portable Kernel build
 sed -i 's/autodetect //g' /etc/mkinitcpio.conf
 mkinitcpio -P > /dev/null
 EOF
